@@ -302,7 +302,7 @@ async function imageHandler (req){
       buffer = result.Body
     }
     catch (e) {
-      console.log('original image not found')
+      console.log(`original image not found in ${Bucket} ${Key}`)
       exists = false
     }
   }
