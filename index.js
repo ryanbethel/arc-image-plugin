@@ -249,7 +249,7 @@ async function imageHandler (req){
       buffer = result.Body
     }
     catch (e){
-      console.log(e)
+      console.log('cached image not found')
       exists = false
     }
   }
@@ -262,7 +262,7 @@ async function imageHandler (req){
       buffer = fs.readFileSync(pathToFile)
     }
     catch (e){
-      console.log(e)
+      console.log('cached image not found')
       exists = false
     }
   }
@@ -302,7 +302,7 @@ async function imageHandler (req){
       buffer = result.Body
     }
     catch (e) {
-      console.log(e)
+      console.log('original image not found')
       exists = false
     }
   }
@@ -315,7 +315,7 @@ async function imageHandler (req){
       buffer = fs.readFileSync(pathToFile)
     }
     catch (e){
-      console.log(e)
+      console.log('original image not found')
       exists = false
     }
   }
