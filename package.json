@@ -1,15 +1,10 @@
 {
-  "name": "@architect/plugin-budget-watch",
-  "version": "0.0.4",
-  "description": "Architect plugin for limiting cost of deployed apps",
+  "name": "image-plugin",
+  "version": "0.0.0",
+  "description": "Architect plugin transforming images",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint . --fix",
-    "hydrate:trigger": "cd src/ && npm i",
-    "hydrate:tests": "cd test/test-app/ && npm i && npx arc init",
-    "postinstall": "npm run hydrate:trigger",
-    "test": "QUIET=1 tape test/integration-test.js | tap-spec",
-    "rc": "npm version prerelease --preid RC"
+    "lint": "eslint . --fix"
   },
   "author": "Ryan Bethel",
   "engines": {
@@ -21,7 +16,10 @@
   },
   "license": "Apache-2.0",
   "dependencies": {
-    "@architect/architect": "^9.0.1"
+    "@architect/architect": "^9.0.1",
+    "@architect/functions": "^4.0.0",
+    "image-size": "^1.0.0",
+    "jimp": "^0.16.1"
   },
   "devDependencies": {
     "@architect/eslint-config": "^2.0.0",
@@ -30,8 +28,7 @@
     "tape": "^5.3.1"
   },
   "files": [
-    "index.js",
-    "src"
+    "index.js"
   ],
   "eslintConfig": {
     "extends": "@architect/eslint-config"
