@@ -136,6 +136,15 @@ module.exports = {
     let rawPath = req.rawPath
     let imagePath = rawPath.replace(/^\/transform\//i, '')
     let rawQuery = req.rawQueryString
+    let query = req.queryStringParameters
+
+
+    let transforms = {}
+    console.log({ query })
+
+
+
+
     let hash = createHash('sha256')
     hash.update(`${imagePath}?${rawQuery}`)
     let queryFingerprint =  hash.digest('hex').slice(0, 10)
@@ -195,8 +204,8 @@ module.exports = {
     // Transform
     // 1. first get the original image
     // let imagePath = req.image.path
-    console.log(imagePath)
-    let query = req.queryStringParameters
+    // console.log(imagePath)
+    // let query = req.queryStringParameters
     let height = query.height
     let width = query.width
     // let queryFingerprint = req.queryFingerprint
@@ -275,7 +284,7 @@ module.exports = {
     else {
       return { statusCode: 404 }
     }
-  } 
+  }
 
 }
 
