@@ -1,5 +1,5 @@
 {
-  "name": "arc-image-plugin",
+  "name": "@ryanbethel/arc-image-plugin",
   "version": "0.0.0",
   "description": "Architect plugin for transforming images",
   "main": "src/index.js",
@@ -18,7 +18,6 @@
     "@architect/eslint-config": "^2.0.0",
     "eslint": "^7.11.0",
     "image-size": "^1.0.0",
-    "tap-spec": "^5.0.0",
     "tap-spek": "^0.0.11",
     "tape": "^5.3.1",
     "tiny-json-http": "^7.3.1"
@@ -28,5 +27,19 @@
   ],
   "eslintConfig": {
     "extends": "@architect/eslint-config"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ryanbethel/arc-image-plugin.git"
+  },
+  "keywords": [
+    "image",
+    "transform",
+    "architect"
+  ],
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ryanbethel/arc-image-plugin/issues"
+  },
+  "homepage": "https://github.com/ryanbethel/arc-image-plugin#readme"
 }
