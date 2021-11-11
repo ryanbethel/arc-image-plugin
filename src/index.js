@@ -1,11 +1,12 @@
-let path = require('path')
-let os = require('os')
-let fs = require('fs')
-let arc = require('@architect/functions')
-let Jimp = require('jimp')
-let sizeOf = require('image-size')
-let aws = require('aws-sdk')
-let { createHash } = require('crypto')
+const path = require('path')
+const os = require('os')
+const fs = require('fs')
+const arc = require('@architect/functions')
+const Jimp = require('jimp')
+const aws = require('aws-sdk')
+const { createHash } = require('crypto')
+const normalizedStringify = require('json-stable-stringify')
+
 
 
 module.exports = {
@@ -117,47 +118,72 @@ module.exports = {
     const isLocal = stage === 'testing'
     let cacheBucket
     let staticDir
+    let fingerprint
     if (isLocal) {
-      cacheBucket = fs.mkdtempSync(path.join(os.tmpdir(), 'arc-img-cache'))
+      cacheBucket = fs.mkdtempSync(path.join(os.tmpdir(), 'arc-image-cache'))
       staticDir = inventory.inv._project.src + '/' + inventory.inv.static.folder
-      return { cacheBucket, staticDir }
+      fingerprint = inventory.inv.static.fingerprint
+      return { cacheBucket, staticDir, fingerprint }
     }
-    else return { cacheBucket: { 'Ref': 'ImageCacheBucket' } }
+    else return { cacheBucket: { 'Ref': 'ImageCacheBucket' },
+      fingerprint: inventory.inv.static.fingerprint
+    }
   },
 
 
   imageHandler: async function (req){
+    console.time('transform time')
     const discovery = await arc.services()
     let Region = process.env.AWS_REGION
-    let cacheBucket = discovery['image-plugin'].cacheBucket
-    let localStaticDir = discovery['image-plugin'].staticDir
+    let cacheBucket = discovery['arc-image-plugin'].cacheBucket
+    let localStaticDir = discovery['arc-image-plugin'].staticDir
+    let fourOhFour = { statusCode: 404 }
+    let fingerprint = discovery['arc-image-plugin'].fingerprint
+    function antiCache ({ mime }) {
+      return {
+        'cache-control': 'no-cache, no-store, must-revalidate, max-age=0, s-maxage=0',
+        'content-type': `${mime}; charset=utf8`,
+        isBase64Encoded: true
+      }
+    }
+    function longCache ({ mime }) {
+      return  {
+        'cache-control': 'max-age=31536000',
+        'content-type': `${mime}; charset=utf8`,
+        isBase64Encoded: true
+      }
+    }
+    function imageResponse ({ mime, buffer }){
+      return { statusCode: 200,
+        headers: fingerprint ? longCache({ mime }) : antiCache({ mime }),
+        body: buffer.toString('base64')
+      }
+    }
 
-    // verify the request is properly formed
+
+    // Validate request parameters
     let rawPath = req.rawPath
     let imagePath = rawPath.replace(/^\/transform\//i, '')
-    let rawQuery = req.rawQueryString
     let query = req.queryStringParameters
 
-
-    let transforms = {}
-    console.log({ query })
-
-
-
+    let allowedParams = {
+      width: query?.width,
+      height: query?.height,
+      grayscale: query?.grayscale,
+      quality: query?.quality,
+      scaleToFit: query?.scaleToFit,
+      cover: query?.cover,
+      contain: query?.contain,
+    }
 
     let hash = createHash('sha256')
-    hash.update(`${imagePath}?${rawQuery}`)
+    hash.update(`${imagePath}:${normalizedStringify(allowedParams)}`)
     let queryFingerprint =  hash.digest('hex').slice(0, 10)
     let ext = path.extname(imagePath).slice(1)
-    if (!(ext === 'jpg' || ext === 'png')) return { statusCode: 404 }
-    req.queryFingerprint = queryFingerprint
-    req.image = { path: imagePath, ext, mime: `image/${ext}` }
+    if (!(ext === 'jpg' || ext === 'jpeg' || ext === 'png')) return fourOhFour
+    let mime = ext === 'jpg' ? `image/jpeg` : `image/${ext}`
 
     // check cache
-    // let queryFingerprint = req.queryFingerprint
-    // let ext = req.image.ext
-    let mime = req.image.mime
-    // let discovery = await arc.services()
     let s3 = new aws.S3({ Region })
 
     let buffer
@@ -167,7 +193,6 @@ module.exports = {
     let exists = true
     if (isLive) {
     // read from s3
-    // let Bucket = discovery['storage-private']['image-cache']
       let Bucket = cacheBucket
       let Key = `${queryFingerprint}.${ext}`
       try {
@@ -181,9 +206,7 @@ module.exports = {
     }
     else {
     // read from local filesystem
-    // let pathToCache = path.join(__dirname, '..', '..', '..', 'tmp-cache')
       let pathToFile = path.join(cacheBucket, `${queryFingerprint}.${ext}`)
-      // let pathToFile = path.join(pathToCache, `${queryFingerprint}.${ext}`)
       try {
         buffer = fs.readFileSync(pathToFile)
       }
@@ -194,30 +217,12 @@ module.exports = {
     }
 
     if (exists) {
-      return {
-        statusCode: 200,
-        headers: { 'Content-Type': mime, isBase64Encoded: true },
-        body: buffer.toString('base64')
-      }
+      console.timeEnd('transform time')
+      return imageResponse({ mime, buffer })
     }
 
     // Transform
     // 1. first get the original image
-    // let imagePath = req.image.path
-    // console.log(imagePath)
-    // let query = req.queryStringParameters
-    let height = query.height
-    let width = query.width
-    // let queryFingerprint = req.queryFingerprint
-    // let ext = req.image.ext
-    // let mime = req.image.mime
-    // let discovery = await arc.services()
-    // let s3 = new aws.S3({ Region })
-
-    // let buffer
-    // let env = process.env.ARC_ENV || process.env.NODE_ENV
-    // let isLive = (env === 'staging' || env === 'production')
-
     exists = true
     if (isLive) {
     // read from s3
@@ -250,17 +255,20 @@ module.exports = {
     // 2. transform it
     if (exists){
       let Key = `${queryFingerprint}.${ext}`
-
-      let size = sizeOf(buffer)
-      let scaling = Math.min(width / size.width, height / size.height)
-      let newWidth  = scaling * size.width
-      let newHeight = scaling * size.height
-
       let image = await Jimp.read(buffer)
-      image.resize(newWidth, newHeight)
+      if (allowedParams.grayscale || allowedParams.grayscale === '') image.grayscale()
+      if (allowedParams.quality) image.quality(allowedParams.quality)
+      let height = allowedParams.height ? Number.parseInt(allowedParams.height) : Jimp.AUTO
+      let width = allowedParams.width ? Number.parseInt(allowedParams.width) : Jimp.AUTO
+
+      if (allowedParams.scaleToFit || allowedParams.scaleToFit === '') image.scaleToFit(width, height)
+      else if (allowedParams.contain || allowedParams.contain === '') image.contain(width, height)
+      else if (allowedParams.cover || allowedParams.cover === '') image.cover(width, height)
+      else if (allowedParams.width || allowedParams.height ) image.scaleToFit(width, height)
+
+      // save to cache
       let output = await image.getBufferAsync(Jimp.AUTO)
       if (isLive) {
-      // let cacheBucket = discovery['storage-private']['image-cache']
         await s3.putObject({
           ContentType: mime,
           Bucket: cacheBucket,
@@ -269,20 +277,16 @@ module.exports = {
         }).promise()
       }
       else {
-      // fs.mkdirSync('../../../tmp-cache', { recursive: true })
-      // fs.writeFileSync(path.resolve('../../../tmp-cache/', Key), output)
         fs.writeFileSync(path.resolve(cacheBucket, Key), output)
       }
 
       // 4. respond with the image
-      return {
-        statusCode: 200,
-        headers: { 'content-type': mime, isBase64Encoded: true },
-        body: output.toString('base64')
-      }
+      console.timeEnd('transform time')
+      return imageResponse({ mime, buffer: output })
     }
     else {
-      return { statusCode: 404 }
+      console.timeEnd('transform time')
+      return fourOhFour
     }
   }
 

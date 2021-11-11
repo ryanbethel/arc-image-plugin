@@ -1,34 +1,30 @@
 {
-  "name": "image-plugin",
+  "name": "arc-image-plugin",
   "version": "0.0.0",
-  "description": "Architect plugin transforming images",
-  "main": "index.js",
+  "description": "Architect plugin for transforming images",
+  "main": "src/index.js",
   "scripts": {
-    "lint": "eslint . --fix"
+    "lint": "eslint . --fix",
+    "test": "tape test/*-test.js | tap-spek"
   },
   "author": "Ryan Bethel",
-  "engines": {
-    "node": ">=14"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/architect/plugin-budget-watch.git"
-  },
-  "license": "Apache-2.0",
   "dependencies": {
-    "@architect/architect": "^9.0.1",
     "@architect/functions": "^4.0.0",
-    "image-size": "^1.0.0",
-    "jimp": "^0.16.1"
+    "jimp": "^0.16.1",
+    "json-stable-stringify": "^1.0.1"
   },
   "devDependencies": {
+    "@architect/architect": "^9.2.2",
     "@architect/eslint-config": "^2.0.0",
     "eslint": "^7.11.0",
+    "image-size": "^1.0.0",
     "tap-spec": "^5.0.0",
-    "tape": "^5.3.1"
+    "tap-spek": "^0.0.11",
+    "tape": "^5.3.1",
+    "tiny-json-http": "^7.3.1"
   },
   "files": [
-    "index.js"
+    "src/index.js"
   ],
   "eslintConfig": {
     "extends": "@architect/eslint-config"

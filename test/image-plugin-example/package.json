@@ -1,0 +1,22 @@
+{
+  "name": "example-begin-image",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@architect/functions": "^4.0.0",
+    "arc-image-plugin": "file:../../"
+  },
+  "devDependencies": {
+    "@architect/architect": "^9.1.0",
+    "@architect/eslint-config": "^2.0.0",
+    "eslint": "^7.32.0"
+  },
+  "eslintConfig": {
+    "extends": "@architect/eslint-config"
+  }
+}
