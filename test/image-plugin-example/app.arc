@@ -10,7 +10,7 @@ get /transform/*
 
 
 @plugins
-arc-image-plugin
+ryanbethel/arc-image-plugin
 
 @aws
 profile begin-examples

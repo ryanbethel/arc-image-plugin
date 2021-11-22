@@ -8,7 +8,6 @@ const { createHash } = require('crypto')
 const normalizedStringify = require('json-stable-stringify')
 
 
-
 module.exports = {
   package: function ({ /* arc,*/ cloudformation }) {
 
@@ -135,10 +134,10 @@ module.exports = {
     console.time('transform time')
     const discovery = await arc.services()
     let Region = process.env.AWS_REGION
-    let cacheBucket = discovery['arc-image-plugin'].cacheBucket
-    let localStaticDir = discovery['arc-image-plugin'].staticDir
+    let cacheBucket = discovery.ryanbethel['arc-image-plugin'].cacheBucket
+    let localStaticDir = discovery.ryanbethel['arc-image-plugin'].staticDir
     let fourOhFour = { statusCode: 404 }
-    let fingerprint = discovery['arc-image-plugin'].fingerprint
+    let fingerprint = discovery.ryanbethel['arc-image-plugin'].fingerprint
     function antiCache ({ mime }) {
       return {
         'cache-control': 'no-cache, no-store, must-revalidate, max-age=0, s-maxage=0',
@@ -200,7 +199,6 @@ module.exports = {
         buffer = result.Body
       }
       catch (e){
-        console.log('cached image not found')
         exists = false
       }
     }
@@ -211,7 +209,6 @@ module.exports = {
         buffer = fs.readFileSync(pathToFile)
       }
       catch (e){
-        console.log('cached image not found')
         exists = false
       }
     }
@@ -233,7 +230,6 @@ module.exports = {
         buffer = result.Body
       }
       catch (e) {
-        console.log(`original image not found in ${Bucket} ${Key}`)
         exists = false
       }
     }
@@ -246,7 +242,6 @@ module.exports = {
         buffer = fs.readFileSync(pathToFile)
       }
       catch (e){
-        console.log('original image not found')
         exists = false
       }
     }
@@ -281,11 +276,9 @@ module.exports = {
       }
 
       // 4. respond with the image
-      console.timeEnd('transform time')
       return imageResponse({ mime, buffer: output })
     }
     else {
-      console.timeEnd('transform time')
       return fourOhFour
     }
   }

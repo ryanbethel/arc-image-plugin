@@ -9,7 +9,7 @@
   "license": "ISC",
   "dependencies": {
     "@architect/functions": "^4.0.0",
-    "arc-image-plugin": "file:../../"
+    "@ryanbethel/arc-image-plugin": "file:../../"
   },
   "devDependencies": {
     "@architect/architect": "^9.1.0",
