@@ -1,6 +1,6 @@
 {
   "name": "@ryanbethel/arc-image-plugin",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Architect plugin for transforming images",
   "main": "src/index.js",
   "scripts": {
