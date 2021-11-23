@@ -162,7 +162,7 @@ module.exports = {
 
     // Validate request parameters
     let rawPath = req.rawPath
-    let imagePath = rawPath.replace(/^\/transform\//i, '')
+    let imagePath = rawPath.replace(/_static\//i, '').replace(/^\/transform\//i, '')
     let query = req.queryStringParameters
 
     let allowedParams = {

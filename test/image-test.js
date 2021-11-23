@@ -60,6 +60,24 @@ test('Transforms jpg image', async t => {
   t.ok(durationSecond < 2000, 'image took less than 2 seconds including some test overhead time (meaning it was likely cached)')
 })
 
+test('input of fingerprinted path', async t => {
+  t.plan(4)
+  let startFirst = Date.now()
+  let result = await tiny.get({ url: baseUrl + '/transform/_static/images/elephant.png?width=200&height=200', buffer: true })
+  let durationFirst = Date.now() - startFirst
+  let size = sizeOf(result.body)
+  console.log(size)
+  // { height: 200, width: 183, type: 'png' }
+  t.ok(size.height === 200, 'transformed image returned without cache')
+  t.ok(durationFirst > 2000, 'image took more than two second (meaning it was likely not cached)')
+  let startSecond = Date.now()
+  result = await tiny.get({ url: baseUrl + '/transform/_static/images/elephant.png?width=200&height=200', buffer: true })
+  let durationSecond = Date.now() - startSecond
+  t.ok(size.height === 200, 'transformed image returned from cache')
+  t.ok(durationSecond < 2000, 'image took less than 2 seconds including some test overhead time (meaning it was likely cached)')
+})
+
+
 test('Shut down the Sandbox', async t => {
   t.plan(1)
   let result = await sandbox.end()
