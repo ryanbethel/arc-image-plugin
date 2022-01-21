@@ -15,7 +15,7 @@
     "json-stable-stringify": "^1.0.1"
   },
   "devDependencies": {
-    "@architect/architect": "^9.2.2",
+    "@architect/architect": "^10.0.0-RC.0",
     "@architect/eslint-config": "^2.0.0",
     "eslint": "^7.11.0",
     "image-size": "^1.0.0",

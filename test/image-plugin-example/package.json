@@ -3,8 +3,7 @@
   "version": "0.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {
-  },
+  "scripts": {},
   "author": "",
   "license": "ISC",
   "dependencies": {
@@ -12,7 +11,7 @@
     "@ryanbethel/arc-image-plugin": "file:../../"
   },
   "devDependencies": {
-    "@architect/architect": "^9.1.0",
+    "@architect/architect": "^10.0.0-RC.0",
     "@architect/eslint-config": "^2.0.0",
     "eslint": "^7.32.0"
   },
