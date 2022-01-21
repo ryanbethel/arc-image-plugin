@@ -276,6 +276,7 @@ module.exports = {
       }
 
       // 4. respond with the image
+      console.timeEnd('transform time')
       return imageResponse({ mime, buffer: output })
     }
     else {

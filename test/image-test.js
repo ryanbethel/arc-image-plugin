@@ -28,12 +28,12 @@ test('Transforms png image', async t => {
   let size = sizeOf(result.body)
   // { height: 100, width: 92, type: 'png' }
   t.ok(size.height === 100, 'transformed image returned without cache')
-  t.ok(durationFirst > 2000, 'image took more than two second (meaning it was likely not cached)')
+  t.ok(durationFirst > 1000, 'image took more than two second (meaning it was likely not cached)')
   let startSecond = Date.now()
   result = await tiny.get({ url: baseUrl + '/transform/images/elephant.png?width=100&height=100', buffer: true })
   let durationSecond = Date.now() - startSecond
   t.ok(size.height === 100, 'transformed image returned from cache')
-  t.ok(durationSecond < 2000, 'image took less than 2 seconds including some test overhead time (meaning it was likely cached)')
+  t.ok(durationSecond < 1000, 'image took less than 1 seconds including some test overhead time (meaning it was likely cached)')
 })
 
 test('Gets original jpg image', async t => {
@@ -52,12 +52,12 @@ test('Transforms jpg image', async t => {
   let size = sizeOf(result.body)
   console.log(size)
   t.ok(size.height === 100, 'transformed image returned without cache')
-  t.ok(durationFirst > 2000, 'image took more than two second (meaning it was likely not cached)')
+  t.ok(durationFirst > 1000, 'image took more than two second (meaning it was likely not cached)')
   let startSecond = Date.now()
   result = await tiny.get({ url: baseUrl + '/transform/images/big.jpg?width=100&height=100', buffer: true })
   let durationSecond = Date.now() - startSecond
   t.ok(size.height === 100, 'transformed image returned from cache')
-  t.ok(durationSecond < 2000, 'image took less than 2 seconds including some test overhead time (meaning it was likely cached)')
+  t.ok(durationSecond < 1000, 'image took less than 1 seconds including some test overhead time (meaning it was likely cached)')
 })
 
 test('input of fingerprinted path', async t => {
@@ -69,12 +69,12 @@ test('input of fingerprinted path', async t => {
   console.log(size)
   // { height: 200, width: 183, type: 'png' }
   t.ok(size.height === 200, 'transformed image returned without cache')
-  t.ok(durationFirst > 2000, 'image took more than two second (meaning it was likely not cached)')
+  t.ok(durationFirst > 1000, 'image took more than two second (meaning it was likely not cached)')
   let startSecond = Date.now()
   result = await tiny.get({ url: baseUrl + '/transform/_static/images/elephant.png?width=200&height=200', buffer: true })
   let durationSecond = Date.now() - startSecond
   t.ok(size.height === 200, 'transformed image returned from cache')
-  t.ok(durationSecond < 2000, 'image took less than 2 seconds including some test overhead time (meaning it was likely cached)')
+  t.ok(durationSecond < 1000, 'image took less than 1 seconds including some test overhead time (meaning it was likely cached)')
 })
 
 
