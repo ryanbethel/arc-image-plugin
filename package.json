@@ -6,19 +6,21 @@
   "scripts": {
     "lint": "eslint . --fix",
     "hydrate:tests": "cd test/image-plugin-example && npm i",
-    "test": "tape test/*-test.js | tap-arc"
+    "test": "tape 'test/*-test.js'  | tap-arc --verbose"
   },
   "author": "Ryan Bethel",
   "dependencies": {
-    "@architect/functions": "^4.0.0",
+    "@architect/architect": "^10.0.0-RC.8",
+    "@architect/functions": "^5.0.0-RC.2",
     "jimp": "^0.16.1",
     "json-stable-stringify": "^1.0.1"
   },
   "devDependencies": {
-    "@architect/architect": "^9.2.2",
     "@architect/eslint-config": "^2.0.0",
     "eslint": "^7.11.0",
+    "gm": "^1.23.1",
     "image-size": "^1.0.0",
+    "image-type": "^4.1.0",
     "tap-arc": "^0.1.0",
     "tape": "^5.3.1",
     "tiny-json-http": "^7.3.1"

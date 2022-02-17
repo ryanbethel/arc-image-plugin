@@ -4,4 +4,5 @@ sam.json
 sam.yaml
 preferences.arc
 .DS_Store
+.vscode
 
