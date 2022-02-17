@@ -7,15 +7,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@architect/functions": "^4.0.0",
     "@ryanbethel/arc-image-plugin": "file:../../"
-  },
-  "devDependencies": {
-    "@architect/architect": "^10.0.0-RC.0",
-    "@architect/eslint-config": "^2.0.0",
-    "eslint": "^7.32.0"
-  },
-  "eslintConfig": {
-    "extends": "@architect/eslint-config"
   }
 }

@@ -6,8 +6,6 @@ fingerprint true
 
 @http
 get /
-get /transform/*
-
 
 @plugins
 ryanbethel/arc-image-plugin
