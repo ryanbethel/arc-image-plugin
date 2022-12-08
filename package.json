@@ -1,6 +1,6 @@
 {
-  "name": "@ryanbethel/arc-image-plugin",
-  "version": "0.0.4",
+  "name": "@enhance/arc-image-plugin",
+  "version": "0.0.0",
   "description": "Architect plugin for transforming images",
   "main": "src/index.js",
   "scripts": {
@@ -10,13 +10,14 @@
   },
   "author": "Ryan Bethel",
   "dependencies": {
-    "@architect/architect": "^10.0.0-RC.8",
-    "@architect/functions": "^5.0.0-RC.2",
+    "@squoosh/lib": "^0.4.0",
     "jimp": "^0.16.1",
     "json-stable-stringify": "^1.0.1"
   },
   "devDependencies": {
+    "@architect/architect": "^10.8.0",
     "@architect/eslint-config": "^2.0.0",
+    "@architect/functions": "^5.3.1",
     "eslint": "^7.11.0",
     "gm": "^1.23.1",
     "image-size": "^1.0.0",
@@ -34,7 +35,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ryanbethel/arc-image-plugin.git"
+    "url": "git+https://github.com/enhance-dev/arc-image-plugin.git"
   },
   "keywords": [
     "image",
@@ -43,7 +44,7 @@
   ],
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/ryanbethel/arc-image-plugin/issues"
+    "url": "https://github.com/enhance-dev/arc-image-plugin/issues"
   },
-  "homepage": "https://github.com/ryanbethel/arc-image-plugin#readme"
+  "homepage": "https://github.com/enhance-dev/arc-image-plugin#readme"
 }
