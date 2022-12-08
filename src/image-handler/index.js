@@ -196,11 +196,12 @@ module.exports = {
       
       let image = imagePool.ingestImage(firstPass)
       await image.decoded
+      const codec = imageFormats[extOut].encoder
       let preprocessorOptions = {}
-      let encodeOptions = {[imageFormats[extOut].encoder]:{}}
+      let encodeOptions = {[codec]:{}}
 
       // if (allowedParams.grayscale || allowedParams.grayscale === '') image.grayscale()
-      if (allowedParams.quality) encodeOptions[extOut].quality = allowedParams.quality
+      if (allowedParams.quality) encodeOptions[codec].quality = Number.parseInt(allowedParams.quality)
 
       // let height = allowedParams.height ? Number.parseInt(allowedParams.height) : null
       // let width = allowedParams.width ? Number.parseInt(allowedParams.width) : null
