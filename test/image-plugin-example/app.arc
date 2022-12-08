@@ -9,6 +9,7 @@ get /
 
 @plugins
 ryanbethel/arc-image-plugin
+enhance/arc-plugin-enhance
 
 @aws
 profile begin-examples

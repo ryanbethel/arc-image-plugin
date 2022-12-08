@@ -8,5 +8,8 @@
   "license": "ISC",
   "dependencies": {
     "@ryanbethel/arc-image-plugin": "file:../../"
+  },
+  "devDependencies": {
+    "@enhance/arc-plugin-enhance": "^4.1.0"
   }
 }

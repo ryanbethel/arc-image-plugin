@@ -53,22 +53,31 @@ module.exports = {
     let allowedParams = {
       width: query?.width,
       height: query?.height,
-      grayscale: query?.grayscale,
+      // grayscale: query?.grayscale,
       quality: query?.quality,
-      scaleToFit: query?.scaleToFit,
-      cover: query?.cover,
-      contain: query?.contain,
+      // scaleToFit: query?.scaleToFit,
+      // cover: query?.cover,
+      // contain: query?.contain,
       format: query?.format,
       focus: query?.focus
     }
+
+    const imageFormats = {
+      jpeg: {extOut:'jpeg', encoder:'mozjpeg', mime: 'image/jpeg'},
+      jpg: {extOut:'jpeg', encoder:'mozjpeg', mime: 'image/jpeg'},
+      png: {extOut:'png', encoder:'oxipng', mime: 'image/png'},
+      avif: {extOut:'avif', encoder:'avif', mime: 'image/avif'},
+      webp: {extOut:'webp', encoder:'webp', mime: 'image/webp'},
+    }
+
 
     let hash = createHash('sha256')
     hash.update(`${imagePath}:${normalizedStringify(allowedParams)}`)
     let queryFingerprint =  hash.digest('hex').slice(0, 10)
     let ext = path.extname(imagePath).slice(1)
-    let extOut = allowedParams.format || ext
-    if (!(extOut === 'jpg' || extOut === 'jpeg' || extOut === 'png' || extOut === 'avif' || extOut === 'webp' || extOut === 'gif')) return fourOhFour
-    let mime = extOut === 'jpg' ? `image/jpeg` : `image/${extOut}`
+    let extOut = imageFormats?.[allowedParams.format]?.extOut || imageFormats[ext].extOut
+    if (!extOut) return fourOhFour
+    let mime = imageFormats[extOut].mime
 
     // check cache
     let s3 = new aws.S3({ Region })
@@ -188,7 +197,7 @@ module.exports = {
       let image = imagePool.ingestImage(firstPass)
       await image.decoded
       let preprocessorOptions = {}
-      let encodeOptions = {[extOut]:{}}
+      let encodeOptions = {[imageFormats[extOut].encoder]:{}}
 
       // if (allowedParams.grayscale || allowedParams.grayscale === '') image.grayscale()
       if (allowedParams.quality) encodeOptions[extOut].quality = allowedParams.quality
@@ -213,7 +222,7 @@ module.exports = {
       // else if (allowedParams.width || allowedParams.height ) image.scaleToFit(width, height)
 
       // save to cache
-      let encodedImage = await image.encodedWith[extOut]
+      let encodedImage = await image.encodedWith[imageFormats[extOut].encoder]
       let output = encodedImage.binary
       if (isLive) {
         await s3.putObject({
