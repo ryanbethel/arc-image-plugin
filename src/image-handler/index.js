@@ -12,6 +12,7 @@ const discovery = arc.services() // returns a promise, await in handler
 const fourOhFour = { statusCode: 404 }
 const staticDir = process.env.ARC_STATIC_BUCKET
 let discovered, cacheBucket
+const imageCacheFolderName = ".image-transform-cache"
 
 const { ImagePool } = require('@squoosh/lib')
 const imagePool = new ImagePool()
@@ -43,7 +44,7 @@ function imageResponse ({ mime, buffer }){
 module.exports = {
   handler: async function (req){
     discovered = await discovery
-    cacheBucket = isLive ?  discovered.services['arc-image-plugin-cache-bucket'] : process.env.ARC_IMAGE_PLUGIN_LOCAL_CACHE
+    cacheBucket = isLive ? staticDir : process.env.ARC_IMAGE_PLUGIN_LOCAL_CACHE
 
     // Validate request parameters
     let rawPath = req.rawPath
@@ -88,7 +89,7 @@ module.exports = {
     if (isLive) {
     // read from s3
       let Bucket = cacheBucket
-      let Key = `${queryFingerprint}.${extOut}`
+      let Key = `${imageCacheFolderName}/${queryFingerprint}.${extOut}`
       try {
         let result = await s3.getObject({ Bucket, Key, }).promise()
         buffer = result.Body
@@ -99,7 +100,7 @@ module.exports = {
     }
     else {
     // read from local filesystem
-      let pathToFile = path.join(cacheBucket, `${queryFingerprint}.${extOut}`)
+      let pathToFile = path.join(cacheBucket, `${imageCacheFolderName}/${queryFingerprint}.${extOut}`)
       try {
         buffer = fs.readFileSync(pathToFile)
       }
@@ -182,7 +183,7 @@ module.exports = {
 
     // 2. transform it
     if (exists){
-      let Key = `${queryFingerprint}.${extOut}`
+      let Key = `${imageCacheFolderName}/${queryFingerprint}.${extOut}`
       let imageJimp = await Jimp.read(buffer)
       let height = allowedParams.height ? Number.parseInt(allowedParams.height) : Jimp.AUTO
       let width = allowedParams.width ? Number.parseInt(allowedParams.width) : Jimp.AUTO
@@ -234,6 +235,7 @@ module.exports = {
         }).promise()
       }
       else {
+        if(!fs.existsSync(`${cacheBucket}/${imageCacheFolderName}`)) fs.mkdirSync(`${cacheBucket}/${imageCacheFolderName}`)
         fs.writeFileSync(path.resolve(cacheBucket, Key), output)
       }
 
