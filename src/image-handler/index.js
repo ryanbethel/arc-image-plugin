@@ -43,6 +43,7 @@ function imageResponse ({ mime, buffer }){
 
 module.exports = {
   handler: async function (req){
+    console.log("in tranform handler")
     discovered = await discovery
     cacheBucket = isLive ? staticDir : process.env.ARC_IMAGE_PLUGIN_LOCAL_CACHE
 
@@ -133,6 +134,7 @@ module.exports = {
     // let pathToStatic = path.join(__dirname, '../../../public' )
       let pathToStatic = staticDir
       let pathToFile = path.join(pathToStatic, imagePath)
+      console.log(pathToFile)
       try {
         buffer = fs.readFileSync(pathToFile)
       }

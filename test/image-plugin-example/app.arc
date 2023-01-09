@@ -8,7 +8,7 @@ fingerprint true
 get /
 
 @plugins
-ryanbethel/arc-image-plugin
+enhance/arc-image-plugin
 enhance/arc-plugin-enhance
 
 @aws
