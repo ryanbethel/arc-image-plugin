@@ -14,6 +14,9 @@ const staticDir = process.env.ARC_STATIC_BUCKET
 let discovered, cacheBucket
 const imageCacheFolderName = ".image-transform-cache"
 
+const Vips = require('wasm-vips')
+const vips = await Vips()
+
 const { ImagePool } = require('@squoosh/lib')
 const imagePool = new ImagePool()
 
@@ -151,38 +154,6 @@ module.exports = {
     }
 
 
-    // // 2. transform it
-    // if (exists){
-    //   let Key = `${queryFingerprint}.${ext}`
-    //   let image = await Jimp.read(buffer)
-    //   if (allowedParams.grayscale || allowedParams.grayscale === '') image.grayscale()
-    //   if (allowedParams.quality) image.quality(allowedParams.quality)
-    //   let height = allowedParams.height ? Number.parseInt(allowedParams.height) : Jimp.AUTO
-    //   let width = allowedParams.width ? Number.parseInt(allowedParams.width) : Jimp.AUTO
-
-    //   if (allowedParams.scaleToFit || allowedParams.scaleToFit === '') image.scaleToFit(width, height)
-    //   else if (allowedParams.contain || allowedParams.contain === '') image.contain(width, height)
-    //   else if (allowedParams.cover || allowedParams.cover === '') image.cover(width, height)
-    //   else if (allowedParams.width || allowedParams.height ) image.scaleToFit(width, height)
-
-    //   // save to cache
-    //   let output = await image.getBufferAsync(Jimp.AUTO)
-    //   if (isLive) {
-    //     await s3.putObject({
-    //       ContentType: mime,
-    //       Bucket: cacheBucket,
-    //       Key,
-    //       Body: output,
-    //     }).promise()
-    //   }
-    //   else {
-    //     fs.writeFileSync(path.resolve(cacheBucket, Key), output)
-    //   }
-
-    //   // 4. respond with the image
-    //   return imageResponse({ mime, buffer: output })
-    // }
-
     // 2. transform it
     if (exists){
       let Key = `${imageCacheFolderName}/${queryFingerprint}.${extOut}`
@@ -203,27 +174,12 @@ module.exports = {
       let preprocessorOptions = {}
       let encodeOptions = {[codec]:{}}
 
-      // if (allowedParams.grayscale || allowedParams.grayscale === '') image.grayscale()
       if (allowedParams.quality) encodeOptions[codec].quality = Number.parseInt(allowedParams.quality)
-
-      // let height = allowedParams.height ? Number.parseInt(allowedParams.height) : null
-      // let width = allowedParams.width ? Number.parseInt(allowedParams.width) : null
-      // if  (height || width) {
-      //   preprocessorOptions.resize = {}
-      //   preprocessorOptions.resize.enable = true
-      //   if (height) preprocessorOptions.resize.height = height
-      //   if (width) preprocessorOptions.resize.width = width
-      // }
 
       await image.preprocess(preprocessorOptions)
 
       await image.encode(encodeOptions)
 
-
-      // if (allowedParams.scaleToFit || allowedParams.scaleToFit === '') image.scaleToFit(width, height)
-      // else if (allowedParams.contain || allowedParams.contain === '') image.contain(width, height)
-      // else if (allowedParams.cover || allowedParams.cover === '') image.cover(width, height)
-      // else if (allowedParams.width || allowedParams.height ) image.scaleToFit(width, height)
 
       // save to cache
       let encodedImage = await image.encodedWith[imageFormats[extOut].encoder]
