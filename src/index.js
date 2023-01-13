@@ -6,7 +6,7 @@ const fs = require('fs')
 module.exports = {
   set: {
     http: function () {
-      return { method: 'get', path: '/transform/*', src: './node_modules/@enhance/arc-image-plugin/src/image-handler', config: { timeout: 30, runtime:'nodejs16.x' } }
+      return { method: 'get', path: '/transform/*', src: './node_modules/@enhance/arc-image-plugin/src/image-handler', config: { timeout: 30 } }
     },
     env: function ({ arc }) {
       const localCacheBucket = fs.mkdtempSync(path.join(os.tmpdir(), 'arc-image-cache'))
