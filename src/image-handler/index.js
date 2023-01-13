@@ -1,7 +1,6 @@
 const path = require('path')
 const fs = require('fs')
 const arc = require('@architect/functions')
-const Jimp = require('jimp')
 const aws = require('aws-sdk')
 const { createHash } = require('crypto')
 const normalizedStringify = require('json-stable-stringify')
