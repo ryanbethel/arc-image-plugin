@@ -1,7 +1,6 @@
 const path = require('path')
 const fs = require('fs')
 const arc = require('@architect/functions')
-const Jimp = require('jimp')
 const aws = require('aws-sdk')
 const { createHash } = require('crypto')
 const normalizedStringify = require('json-stable-stringify')
@@ -14,8 +13,10 @@ const staticDir = process.env.ARC_STATIC_BUCKET
 let discovered, cacheBucket
 const imageCacheFolderName = ".image-transform-cache"
 
-const { ImagePool } = require('@squoosh/lib')
-const imagePool = new ImagePool()
+const Vips = require('wasm-vips')
+
+// const { ImagePool } = require('@squoosh/lib')
+// const imagePool = new ImagePool()
 
 
 function antiCache ({ mime }) {
@@ -43,7 +44,6 @@ function imageResponse ({ mime, buffer }){
 
 module.exports = {
   handler: async function (req){
-    console.log("in tranform handler")
     discovered = await discovery
     cacheBucket = isLive ? staticDir : process.env.ARC_IMAGE_PLUGIN_LOCAL_CACHE
 
@@ -134,7 +134,6 @@ module.exports = {
     // let pathToStatic = path.join(__dirname, '../../../public' )
       let pathToStatic = staticDir
       let pathToFile = path.join(pathToStatic, imagePath)
-      console.log(pathToFile)
       try {
         buffer = fs.readFileSync(pathToFile)
       }
@@ -151,83 +150,28 @@ module.exports = {
     }
 
 
-    // // 2. transform it
-    // if (exists){
-    //   let Key = `${queryFingerprint}.${ext}`
-    //   let image = await Jimp.read(buffer)
-    //   if (allowedParams.grayscale || allowedParams.grayscale === '') image.grayscale()
-    //   if (allowedParams.quality) image.quality(allowedParams.quality)
-    //   let height = allowedParams.height ? Number.parseInt(allowedParams.height) : Jimp.AUTO
-    //   let width = allowedParams.width ? Number.parseInt(allowedParams.width) : Jimp.AUTO
-
-    //   if (allowedParams.scaleToFit || allowedParams.scaleToFit === '') image.scaleToFit(width, height)
-    //   else if (allowedParams.contain || allowedParams.contain === '') image.contain(width, height)
-    //   else if (allowedParams.cover || allowedParams.cover === '') image.cover(width, height)
-    //   else if (allowedParams.width || allowedParams.height ) image.scaleToFit(width, height)
-
-    //   // save to cache
-    //   let output = await image.getBufferAsync(Jimp.AUTO)
-    //   if (isLive) {
-    //     await s3.putObject({
-    //       ContentType: mime,
-    //       Bucket: cacheBucket,
-    //       Key,
-    //       Body: output,
-    //     }).promise()
-    //   }
-    //   else {
-    //     fs.writeFileSync(path.resolve(cacheBucket, Key), output)
-    //   }
-
-    //   // 4. respond with the image
-    //   return imageResponse({ mime, buffer: output })
-    // }
-
     // 2. transform it
     if (exists){
+      const vips = await Vips()
       let Key = `${imageCacheFolderName}/${queryFingerprint}.${extOut}`
-      let imageJimp = await Jimp.read(buffer)
-      let height = allowedParams.height ? Number.parseInt(allowedParams.height) : Jimp.AUTO
-      let width = allowedParams.width ? Number.parseInt(allowedParams.width) : Jimp.AUTO
+      let image = vips.Image.newFromBuffer(buffer)
+      let height = allowedParams.height ? Number.parseInt(allowedParams.height) : 0
+      let width = allowedParams.width ? Number.parseInt(allowedParams.width) : 0
+      const heightScale = height/image.height
+      const widthScale = width/image.width
       if (allowedParams.height && allowedParams.width) {
-        imageJimp.cover(width, height)
+        image = image.resize(Math.min(heightScale,widthScale))
       }
       else {
-        imageJimp.resize(width, height)
+        if (allowedParams?.height) image = image.resize(heightScale);
+        if (allowedParams?.width) image = image.resize(widthScale);
       }
-      firstPass = await imageJimp.getBufferAsync(Jimp.AUTO)
-      
-      let image = imagePool.ingestImage(firstPass)
-      await image.decoded
-      const codec = imageFormats[extOut].encoder
-      let preprocessorOptions = {}
-      let encodeOptions = {[codec]:{}}
-
-      // if (allowedParams.grayscale || allowedParams.grayscale === '') image.grayscale()
-      if (allowedParams.quality) encodeOptions[codec].quality = Number.parseInt(allowedParams.quality)
-
-      // let height = allowedParams.height ? Number.parseInt(allowedParams.height) : null
-      // let width = allowedParams.width ? Number.parseInt(allowedParams.width) : null
-      // if  (height || width) {
-      //   preprocessorOptions.resize = {}
-      //   preprocessorOptions.resize.enable = true
-      //   if (height) preprocessorOptions.resize.height = height
-      //   if (width) preprocessorOptions.resize.width = width
-      // }
-
-      await image.preprocess(preprocessorOptions)
-
-      await image.encode(encodeOptions)
 
 
-      // if (allowedParams.scaleToFit || allowedParams.scaleToFit === '') image.scaleToFit(width, height)
-      // else if (allowedParams.contain || allowedParams.contain === '') image.contain(width, height)
-      // else if (allowedParams.cover || allowedParams.cover === '') image.cover(width, height)
-      // else if (allowedParams.width || allowedParams.height ) image.scaleToFit(width, height)
+      let options = {}
+      if (allowedParams.quality) options.Q = allowedParams.quality
+      let output = image.writeToBuffer('.'+extOut,options)
 
-      // save to cache
-      let encodedImage = await image.encodedWith[imageFormats[extOut].encoder]
-      let output = encodedImage.binary
       if (isLive) {
         await s3.putObject({
           ContentType: mime,
