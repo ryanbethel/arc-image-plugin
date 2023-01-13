@@ -15,10 +15,9 @@ let discovered, cacheBucket
 const imageCacheFolderName = ".image-transform-cache"
 
 const Vips = require('wasm-vips')
-const vips = await Vips()
 
-const { ImagePool } = require('@squoosh/lib')
-const imagePool = new ImagePool()
+// const { ImagePool } = require('@squoosh/lib')
+// const imagePool = new ImagePool()
 
 
 function antiCache ({ mime }) {
@@ -46,7 +45,6 @@ function imageResponse ({ mime, buffer }){
 
 module.exports = {
   handler: async function (req){
-    console.log("in tranform handler")
     discovered = await discovery
     cacheBucket = isLive ? staticDir : process.env.ARC_IMAGE_PLUGIN_LOCAL_CACHE
 
@@ -137,7 +135,6 @@ module.exports = {
     // let pathToStatic = path.join(__dirname, '../../../public' )
       let pathToStatic = staticDir
       let pathToFile = path.join(pathToStatic, imagePath)
-      console.log(pathToFile)
       try {
         buffer = fs.readFileSync(pathToFile)
       }
@@ -156,34 +153,26 @@ module.exports = {
 
     // 2. transform it
     if (exists){
+      const vips = await Vips()
       let Key = `${imageCacheFolderName}/${queryFingerprint}.${extOut}`
-      let imageJimp = await Jimp.read(buffer)
-      let height = allowedParams.height ? Number.parseInt(allowedParams.height) : Jimp.AUTO
-      let width = allowedParams.width ? Number.parseInt(allowedParams.width) : Jimp.AUTO
+      let image = vips.Image.newFromBuffer(buffer)
+      let height = allowedParams.height ? Number.parseInt(allowedParams.height) : 0
+      let width = allowedParams.width ? Number.parseInt(allowedParams.width) : 0
+      const heightScale = height/image.height
+      const widthScale = width/image.width
       if (allowedParams.height && allowedParams.width) {
-        imageJimp.cover(width, height)
+        image = image.resize(Math.min(heightScale,widthScale))
       }
       else {
-        imageJimp.resize(width, height)
+        if (allowedParams?.height) image = image.resize(heightScale);
+        if (allowedParams?.width) image = image.resize(widthScale);
       }
-      firstPass = await imageJimp.getBufferAsync(Jimp.AUTO)
-      
-      let image = imagePool.ingestImage(firstPass)
-      await image.decoded
-      const codec = imageFormats[extOut].encoder
-      let preprocessorOptions = {}
-      let encodeOptions = {[codec]:{}}
-
-      if (allowedParams.quality) encodeOptions[codec].quality = Number.parseInt(allowedParams.quality)
-
-      await image.preprocess(preprocessorOptions)
-
-      await image.encode(encodeOptions)
 
 
-      // save to cache
-      let encodedImage = await image.encodedWith[imageFormats[extOut].encoder]
-      let output = encodedImage.binary
+      let options = {}
+      if (allowedParams.quality) options.Q = allowedParams.quality
+      let output = image.writeToBuffer('.'+extOut,options)
+
       if (isLive) {
         await s3.putObject({
           ContentType: mime,
