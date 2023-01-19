@@ -7,6 +7,6 @@ preferences.arc
 .vscode
 tmp
 .enhance
-tests/**/package-lock.json
+test/**/package-lock.json
 .env
 

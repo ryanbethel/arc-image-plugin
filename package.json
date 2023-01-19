@@ -1,7 +1,7 @@
 {
   "name": "@enhance/arc-image-plugin",
   "version": "0.0.3-RC.0",
-  "description": "Architect plugin for transforming images",
+  "description": "Enhance/Architect plugin for transforming images",
   "main": "src/index.js",
   "scripts": {
     "lint": "eslint . --fix",

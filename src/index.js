@@ -5,6 +5,9 @@ const fs = require('fs')
 
 module.exports = {
   set: {
+    static: function () {
+      return { ignore: [".image-transform-cache"] }
+    },
     http: function () {
       return { method: 'get', path: '/transform/*', src: './node_modules/@enhance/arc-image-plugin/src/image-handler', config: { timeout: 30 } }
     },

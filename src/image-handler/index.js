@@ -15,8 +15,6 @@ const imageCacheFolderName = ".image-transform-cache"
 
 const Vips = require('wasm-vips')
 
-// const { ImagePool } = require('@squoosh/lib')
-// const imagePool = new ImagePool()
 
 
 function antiCache ({ mime }) {
@@ -53,23 +51,20 @@ module.exports = {
     let query = req.queryStringParameters
 
     let allowedParams = {
-      width: query?.width,
-      height: query?.height,
-      // grayscale: query?.grayscale,
-      quality: query?.quality,
-      // scaleToFit: query?.scaleToFit,
-      // cover: query?.cover,
-      // contain: query?.contain,
-      format: query?.format,
-      focus: query?.focus
+      width: query?.width, // in pixels
+      height: query?.height,  // in pixels
+      quality: query?.quality, // 0 to 100
+      format: query?.format, // output file format
+      fit: query?.fit, // cover or contain
+      focus: query?.focus // top, right, bottom, left, top-right, bottom-right, bottom-left, top-left
     }
 
     const imageFormats = {
-      jpeg: {extOut:'jpeg', encoder:'mozjpeg', mime: 'image/jpeg'},
-      jpg: {extOut:'jpeg', encoder:'mozjpeg', mime: 'image/jpeg'},
-      png: {extOut:'png', encoder:'oxipng', mime: 'image/png'},
-      avif: {extOut:'avif', encoder:'avif', mime: 'image/avif'},
-      webp: {extOut:'webp', encoder:'webp', mime: 'image/webp'},
+      jpeg: {extOut:'jpeg', mime: 'image/jpeg'},
+      jpg: {extOut:'jpeg', mime: 'image/jpeg'},
+      png: {extOut:'png', mime: 'image/png'},
+      avif: {extOut:'avif', mime: 'image/avif'},
+      webp: {extOut:'webp', mime: 'image/webp'},
     }
 
 
@@ -131,7 +126,6 @@ module.exports = {
     }
     else {
     // read from local filesystem
-    // let pathToStatic = path.join(__dirname, '../../../public' )
       let pathToStatic = staticDir
       let pathToFile = path.join(pathToStatic, imagePath)
       try {
@@ -155,16 +149,73 @@ module.exports = {
       const vips = await Vips()
       let Key = `${imageCacheFolderName}/${queryFingerprint}.${extOut}`
       let image = vips.Image.newFromBuffer(buffer)
-      let height = allowedParams.height ? Number.parseInt(allowedParams.height) : 0
-      let width = allowedParams.width ? Number.parseInt(allowedParams.width) : 0
-      const heightScale = height/image.height
-      const widthScale = width/image.width
-      if (allowedParams.height && allowedParams.width) {
-        image = image.resize(Math.min(heightScale,widthScale))
-      }
-      else {
-        if (allowedParams?.height) image = image.resize(heightScale);
-        if (allowedParams?.width) image = image.resize(widthScale);
+
+      const heightIn = image.height
+      const widthIn = image.width
+
+      const heightOut = allowedParams.height ? Number.parseInt(allowedParams.height) : 0
+      const widthOut = allowedParams.width ? Number.parseInt(allowedParams.width) : 0
+      
+      const aspectIn = widthIn/heightIn
+      const aspectOut = (heightOut && widthOut) ? widthOut/heightOut : aspectIn
+
+      const heightScale = heightOut ? heightOut/heightIn : widthOut/widthIn
+      const widthScale = widthOut ? widthOut/widthIn : heightOut/heightIn 
+
+      const fit = allowedParams.fit ? allowedParams.fit : 'contain'
+      const focus = allowedParams.focus ? allowedParams.focus : 'top'
+
+      if (fit==='contain') image = image.resize(Math.min(heightScale,widthScale));
+      if (fit==='cover') {
+        image = image.resize(Math.max(heightScale,widthScale))
+        const heightInter = image.height
+        const widthInter = image.width
+        let cropStart = {left:0, top:0}
+        switch (focus) {
+          case 'top':
+            cropStart.left=(widthInter-widthOut)/2
+            cropStart.top=0
+            break;
+          case 'right':
+            cropStart.left=(widthInter-widthOut)
+            cropStart.top=(heightInter-heightOut)/2
+            break;
+          case 'bottom':
+            cropStart.left=(widthInter-widthOut)/2
+            cropStart.top=(heightInter-heightOut)
+            break;
+          case 'left':
+            cropStart.left=0
+            cropStart.top=(heightInter-heightOut)/2
+            break;
+          case 'top-right':
+            cropStart.left=(widthInter-widthOut)
+            cropStart.top=0
+            break;
+          case 'bottom-right':
+            cropStart.left=(widthInter-widthOut)
+            cropStart.top=(heightInter-heightOut)
+            break;
+          case 'bottom-left':
+            cropStart.left=0
+            cropStart.top=(heightInter-heightOut)
+            break;
+          case 'top-left':
+            cropStart.left=0
+            cropStart.top=0
+            break;
+          case 'center':
+            cropStart.left=(widthInter-widthOut)/2
+            cropStart.top=(heightInter-heightOut)/2
+            break;
+          default:
+            cropStart.left=(widthInter-widthOut)/2
+            cropStart.top=(heightInter-heightOut)/2
+            break;
+        }
+
+        image = image.crop(cropStart.left,cropStart.top,widthOut,heightOut)
+
       }
 
 
