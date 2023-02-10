@@ -181,13 +181,16 @@ module.exports = {
         // image = image.composite(marker, vips.BlendMode.over, config);
         const x = Math.round((xPercent/100)*(widthIn))
         const y = Math.round((yPercent/100)*(heightIn))
-        const radius = Math.round(widthIn/10)
-        // image.drawCircle([255,255,255],1000,1000,50)
-        image.drawCircle([0,0,0],x,y,radius)
+        const lineLength = Math.round(widthIn/10)
+        const lineWidth = 10
+        image.drawRect([0,0,0],Math.round(Math.max(0,x-(lineLength/2))),Math.round(Math.max(0,y+(lineWidth/2))),lineLength,lineWidth,{fill:true})
+        image.drawRect([0,0,0],Math.round(Math.max(0,x+(lineWidth/2))),Math.round(Math.max(0,y-(lineLength/2))),lineWidth,lineLength,{fill:true})
+        image.drawRect([255,255,255],Math.round(Math.max(0,x-(lineLength/2))),Math.round(Math.max(0,y-(lineWidth/2))),lineLength,lineWidth,{fill:true})
+        image.drawRect([255,255,255],Math.round(Math.max(0,x-(lineWidth/2))),Math.round(Math.max(0,y-(lineLength/2))),lineWidth,lineLength,{fill:true})
       }
 
       const fit = allowedParams.fit ? allowedParams.fit : 'contain'
-      const focus = allowedParams.focus ? allowedParams.focus : 'top'
+      const focus = allowedParams.focus ? allowedParams.focus : 'center'
 
       if (fit==='contain') image = image.resize(Math.min(heightScale,widthScale));
       if (fit==='cover') {
