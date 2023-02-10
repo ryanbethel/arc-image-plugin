@@ -56,7 +56,11 @@ module.exports = {
       quality: query?.quality, // 0 to 100
       format: query?.format, // output file format
       fit: query?.fit, // cover or contain
-      focus: query?.focus // top, right, bottom, left, top-right, bottom-right, bottom-left, top-left
+      focus: query?.focus, // top, right, bottom, left, top-right, bottom-right, bottom-left, top-left
+      mark: query?.mark !== undefined ? true : false,
+      x: query?.x,
+      y: query?.y,
+
     }
 
     const imageFormats = {
@@ -162,6 +166,21 @@ module.exports = {
       const heightScale = heightOut ? heightOut/heightIn : widthOut/widthIn
       const widthScale = widthOut ? widthOut/widthIn : heightOut/heightIn 
 
+
+      let xPercent = 50
+      let yPercent = 50
+      if (allowedParams.x) xPercent = allowedParams.x ? Number.parseInt(allowedParams.x) : 50
+      if (allowedParams.y) yPercent = allowedParams.y ? Number.parseInt(allowedParams.y) : 50
+
+      if (allowedParams.mark) {
+        let marker = vips.Image.newFromFile('./marker.png')
+        const config = {
+          x: Math.round((xPercent/100)*(image.width-marker.width/2)),
+          y: Math.round((yPercent/100)*(image.height-marker.height/2)),
+        }
+        image = image.composite(marker, vips.BlendMode.over, config);
+      }
+
       const fit = allowedParams.fit ? allowedParams.fit : 'contain'
       const focus = allowedParams.focus ? allowedParams.focus : 'top'
 
@@ -173,20 +192,20 @@ module.exports = {
         let cropStart = {left:0, top:0}
         switch (focus) {
           case 'top':
-            cropStart.left=(widthInter-widthOut)/2
+            cropStart.left=Math.round((widthInter-widthOut)/2)
             cropStart.top=0
             break;
           case 'right':
             cropStart.left=(widthInter-widthOut)
-            cropStart.top=(heightInter-heightOut)/2
+            cropStart.top=Math.round((heightInter-heightOut)/2)
             break;
           case 'bottom':
-            cropStart.left=(widthInter-widthOut)/2
+            cropStart.left=Math.round((widthInter-widthOut)/2)
             cropStart.top=(heightInter-heightOut)
             break;
           case 'left':
             cropStart.left=0
-            cropStart.top=(heightInter-heightOut)/2
+            cropStart.top=Math.round((heightInter-heightOut)/2)
             break;
           case 'top-right':
             cropStart.left=(widthInter-widthOut)
@@ -205,12 +224,16 @@ module.exports = {
             cropStart.top=0
             break;
           case 'center':
-            cropStart.left=(widthInter-widthOut)/2
-            cropStart.top=(heightInter-heightOut)/2
+            cropStart.left=Math.round((widthInter-widthOut)/2)
+            cropStart.top=Math.round((heightInter-heightOut)/2)
+            break;
+          case 'point':
+            cropStart.left=Math.round((widthInter-widthOut)*(xPercent/100))
+            cropStart.top=Math.round((heightInter-heightOut)*(yPercent/100))
             break;
           default:
-            cropStart.left=(widthInter-widthOut)/2
-            cropStart.top=(heightInter-heightOut)/2
+            cropStart.left=Math.round((widthInter-widthOut)/2)
+            cropStart.top=Math.round((heightInter-heightOut)/2)
             break;
         }
 
