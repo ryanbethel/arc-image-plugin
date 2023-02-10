@@ -179,10 +179,9 @@ module.exports = {
         //   y: Math.round((yPercent/100)*(image.height-marker.height/2)),
         // }
         // image = image.composite(marker, vips.BlendMode.over, config);
-        const x = Math.round((xPercent/100)*(image.width))
-        const y = Math.round((yPercent/100)*(image.height))
-        const radius = Math.round(image.width/10)
-        console.log(x,y,radius)
+        const x = Math.round((xPercent/100)*(widthIn))
+        const y = Math.round((yPercent/100)*(heightIn))
+        const radius = Math.round(widthIn/10)
         // image.drawCircle([255,255,255],1000,1000,50)
         image.drawCircle([0,0,0],x,y,radius)
       }
@@ -234,8 +233,8 @@ module.exports = {
             cropStart.top=Math.round((heightInter-heightOut)/2)
             break;
           case 'point':
-            cropStart.left=Math.round((widthInter-widthOut)*(xPercent/100))
-            cropStart.top=Math.round((heightInter-heightOut)*(yPercent/100))
+            cropStart.left=Math.max(Math.min((widthInter-widthOut), Math.round((widthInter*(xPercent/100))-widthOut/2)),0)
+            cropStart.top=Math.max(Math.min((heightInter-heightOut), Math.round((heightInter*(yPercent/100))-heightOut/2)),0)
             break;
           default:
             cropStart.left=Math.round((widthInter-widthOut)/2)
