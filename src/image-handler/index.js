@@ -173,12 +173,18 @@ module.exports = {
       if (allowedParams.y) yPercent = allowedParams.y ? Number.parseInt(allowedParams.y) : 50
 
       if (allowedParams.mark) {
-        let marker = vips.Image.newFromFile('./marker.png')
-        const config = {
-          x: Math.round((xPercent/100)*(image.width-marker.width/2)),
-          y: Math.round((yPercent/100)*(image.height-marker.height/2)),
-        }
-        image = image.composite(marker, vips.BlendMode.over, config);
+        // let marker = vips.Image.newFromFile('./marker.png')
+        // const config = {
+        //   x: Math.round((xPercent/100)*(image.width-marker.width/2)),
+        //   y: Math.round((yPercent/100)*(image.height-marker.height/2)),
+        // }
+        // image = image.composite(marker, vips.BlendMode.over, config);
+        const x = Math.round((xPercent/100)*(image.width))
+        const y = Math.round((yPercent/100)*(image.height))
+        const radius = Math.round(image.width/10)
+        console.log(x,y,radius)
+        // image.drawCircle([255,255,255],1000,1000,50)
+        image.drawCircle([0,0,0],x,y,radius)
       }
 
       const fit = allowedParams.fit ? allowedParams.fit : 'contain'
