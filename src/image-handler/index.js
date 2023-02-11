@@ -173,12 +173,6 @@ module.exports = {
       if (allowedParams.y) yPercent = allowedParams.y ? Number.parseInt(allowedParams.y) : 50
 
       if (allowedParams.mark) {
-        // let marker = vips.Image.newFromFile('./marker.png')
-        // const config = {
-        //   x: Math.round((xPercent/100)*(image.width-marker.width/2)),
-        //   y: Math.round((yPercent/100)*(image.height-marker.height/2)),
-        // }
-        // image = image.composite(marker, vips.BlendMode.over, config);
         const x = Math.round((xPercent/100)*(widthIn))
         const y = Math.round((yPercent/100)*(heightIn))
         const lineLength = Math.round(widthIn/10)

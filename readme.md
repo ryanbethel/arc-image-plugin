@@ -47,8 +47,11 @@ Other examples:
   - 'contain'(default): output will fit inside the specified height and width
   - 'cover': output will cover the height and width with the remaining portion cropped.
 - focus: If the image is cropped what area is maintained as the focal point.
-  - Options: 'top', 'right', 'bottom', 'left', 'top-right', 'bottom-right', 'bottom-left', 'top-left', 'center'
+  - Options: 'top', 'right', 'bottom', 'left', 'top-right', 'bottom-right', 'bottom-left', 'top-left', 'center', 'point'
   - Default: 'center'
+- mark: adds a marker to the chosen focal point of the image to temporarily identify the focal point.
+  - Use with focus=point, x=<x-percentage>, and y=<y-percentage>
+- x,y: Mark a focal point from the top left by percentage. Used with focus=point
 
 
 The transformation maintains aspect ratio.
