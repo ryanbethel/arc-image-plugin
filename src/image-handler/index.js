@@ -167,10 +167,8 @@ module.exports = {
       const widthScale = widthOut ? widthOut/widthIn : heightOut/heightIn 
 
 
-      let xPercent = 50
-      let yPercent = 50
-      if (allowedParams.x) xPercent = allowedParams.x ? Number.parseInt(allowedParams.x) : 50
-      if (allowedParams.y) yPercent = allowedParams.y ? Number.parseInt(allowedParams.y) : 50
+      const xPercent = allowedParams.x ? Number.parseInt(allowedParams.x) : 50
+      const yPercent = allowedParams.y ? Number.parseInt(allowedParams.y) : 50
 
       if (allowedParams.mark) {
         const x = Math.round((xPercent/100)*(widthIn))
