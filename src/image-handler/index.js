@@ -56,7 +56,11 @@ module.exports = {
       quality: query?.quality, // 0 to 100
       format: query?.format, // output file format
       fit: query?.fit, // cover or contain
-      focus: query?.focus // top, right, bottom, left, top-right, bottom-right, bottom-left, top-left
+      focus: query?.focus, // top, right, bottom, left, top-right, bottom-right, bottom-left, top-left
+      mark: query?.mark !== undefined ? true : false,
+      x: query?.x,
+      y: query?.y,
+
     }
 
     const imageFormats = {
@@ -162,8 +166,23 @@ module.exports = {
       const heightScale = heightOut ? heightOut/heightIn : widthOut/widthIn
       const widthScale = widthOut ? widthOut/widthIn : heightOut/heightIn 
 
+
+      const xPercent = allowedParams.x ? Number.parseInt(allowedParams.x) : 50
+      const yPercent = allowedParams.y ? Number.parseInt(allowedParams.y) : 50
+
+      if (allowedParams.mark) {
+        const x = Math.round((xPercent/100)*(widthIn))
+        const y = Math.round((yPercent/100)*(heightIn))
+        const lineLength = Math.round(widthIn/10)
+        const lineWidth = 10
+        image.drawRect([0,0,0],Math.round(Math.max(0,x-(lineLength/2))),Math.round(Math.max(0,y+(lineWidth/2))),lineLength,lineWidth,{fill:true})
+        image.drawRect([0,0,0],Math.round(Math.max(0,x+(lineWidth/2))),Math.round(Math.max(0,y-(lineLength/2))),lineWidth,lineLength,{fill:true})
+        image.drawRect([255,255,255],Math.round(Math.max(0,x-(lineLength/2))),Math.round(Math.max(0,y-(lineWidth/2))),lineLength,lineWidth,{fill:true})
+        image.drawRect([255,255,255],Math.round(Math.max(0,x-(lineWidth/2))),Math.round(Math.max(0,y-(lineLength/2))),lineWidth,lineLength,{fill:true})
+      }
+
       const fit = allowedParams.fit ? allowedParams.fit : 'contain'
-      const focus = allowedParams.focus ? allowedParams.focus : 'top'
+      const focus = allowedParams.focus ? allowedParams.focus : 'center'
 
       if (fit==='contain') image = image.resize(Math.min(heightScale,widthScale));
       if (fit==='cover') {
@@ -173,20 +192,20 @@ module.exports = {
         let cropStart = {left:0, top:0}
         switch (focus) {
           case 'top':
-            cropStart.left=(widthInter-widthOut)/2
+            cropStart.left=Math.round((widthInter-widthOut)/2)
             cropStart.top=0
             break;
           case 'right':
             cropStart.left=(widthInter-widthOut)
-            cropStart.top=(heightInter-heightOut)/2
+            cropStart.top=Math.round((heightInter-heightOut)/2)
             break;
           case 'bottom':
-            cropStart.left=(widthInter-widthOut)/2
+            cropStart.left=Math.round((widthInter-widthOut)/2)
             cropStart.top=(heightInter-heightOut)
             break;
           case 'left':
             cropStart.left=0
-            cropStart.top=(heightInter-heightOut)/2
+            cropStart.top=Math.round((heightInter-heightOut)/2)
             break;
           case 'top-right':
             cropStart.left=(widthInter-widthOut)
@@ -205,12 +224,16 @@ module.exports = {
             cropStart.top=0
             break;
           case 'center':
-            cropStart.left=(widthInter-widthOut)/2
-            cropStart.top=(heightInter-heightOut)/2
+            cropStart.left=Math.round((widthInter-widthOut)/2)
+            cropStart.top=Math.round((heightInter-heightOut)/2)
+            break;
+          case 'point':
+            cropStart.left=Math.max(Math.min((widthInter-widthOut), Math.round((widthInter*(xPercent/100))-widthOut/2)),0)
+            cropStart.top=Math.max(Math.min((heightInter-heightOut), Math.round((heightInter*(yPercent/100))-heightOut/2)),0)
             break;
           default:
-            cropStart.left=(widthInter-widthOut)/2
-            cropStart.top=(heightInter-heightOut)/2
+            cropStart.left=Math.round((widthInter-widthOut)/2)
+            cropStart.top=Math.round((heightInter-heightOut)/2)
             break;
         }
 
