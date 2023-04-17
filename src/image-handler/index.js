@@ -1,7 +1,6 @@
 const path = require('path')
 const fs = require('fs')
 const arc = require('@architect/functions')
-const aws = require('aws-sdk')
 const { createHash } = require('crypto')
 const normalizedStringify = require('json-stable-stringify')
 const env = process.env.ARC_ENV || process.env.NODE_ENV
@@ -12,6 +11,17 @@ const fourOhFour = { statusCode: 404 }
 const staticDir = process.env.ARC_STATIC_BUCKET
 let discovered, cacheBucket
 const imageCacheFolderName = ".image-transform-cache"
+
+let isNode18 = Number(process.version.replace('v', '').split('.')[0]) >= 18
+console.log({isNode18})
+let s3
+if (isNode18) {
+  const { S3Client, GetObjectCommand, PutObjectCommand } = require('@aws-sdk/client-s3');
+  s3 = new S3Client({ region:Region })
+} else {
+  const AWS = require('aws-sdk')
+  s3 = new AWS.S3({Region })
+}
 
 const Vips = require('wasm-vips')
 
@@ -81,7 +91,6 @@ module.exports = {
     let mime = imageFormats[extOut].mime
 
     // check cache
-    let s3 = new aws.S3({ Region })
 
     let buffer
 
@@ -91,7 +100,13 @@ module.exports = {
       let Bucket = cacheBucket
       let Key = `${imageCacheFolderName}/${queryFingerprint}.${extOut}`
       try {
-        let result = await s3.getObject({ Bucket, Key, }).promise()
+        let result
+        if (isNode18) {
+          result = await s3.getObject({ Bucket, Key }).promise()
+        } else {
+          const command = new GetObjectCommand({ Bucket, Key});
+          result = await s3.send(command);
+        }
         buffer = result.Body
       }
       catch (e){
@@ -121,7 +136,13 @@ module.exports = {
       let Bucket = staticDir
       let Key = imagePath
       try {
-        let result = await s3.getObject({ Bucket, Key, }).promise()
+        let result
+        if (isNode18) {
+          result = await s3.getObject({ Bucket, Key }).promise()
+        } else {
+          const command = new GetObjectCommand({ Bucket, Key});
+          result = await s3.send(command);
+        }
         buffer = result.Body
       }
       catch (e) {
@@ -247,12 +268,22 @@ module.exports = {
       let output = image.writeToBuffer('.'+extOut,options)
 
       if (isLive) {
-        await s3.putObject({
-          ContentType: mime,
-          Bucket: cacheBucket,
-          Key,
-          Body: output,
-        }).promise()
+        if (isNode18) {
+          await s3.putObject({ 
+            ContentType: mime,
+            Bucket: cacheBucket,
+            Key,
+            Body: output,
+          }).promise()
+        } else {
+          const command = new PutObjectCommand({ 
+            ContentType: mime,
+            Bucket: cacheBucket,
+            Key,
+            Body: output,
+          })
+          await s3.send(command);
+        }
       }
       else {
         if(!fs.existsSync(`${cacheBucket}/${imageCacheFolderName}`)) fs.mkdirSync(`${cacheBucket}/${imageCacheFolderName}`)
