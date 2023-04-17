@@ -8,5 +8,6 @@ preferences.arc
 tmp
 .enhance
 test/**/package-lock.json
+test/**/node_modules
 .env
 
