@@ -13,14 +13,14 @@ let discovered, cacheBucket
 const imageCacheFolderName = ".image-transform-cache"
 
 let isNode18 = Number(process.version.replace('v', '').split('.')[0]) >= 18
-console.log({isNode18})
+console.log("isNode18", isNode18)
 let s3
 if (isNode18) {
   const { S3Client, GetObjectCommand, PutObjectCommand } = require('@aws-sdk/client-s3');
   s3 = new S3Client({ region:Region })
 } else {
   const AWS = require('aws-sdk')
-  s3 = new AWS.S3({Region })
+  s3 = new AWS.S3({ Region })
 }
 
 const Vips = require('wasm-vips')
@@ -107,6 +107,8 @@ module.exports = {
           const command = new GetObjectCommand({ Bucket, Key});
           result = await s3.send(command);
         }
+        console.log("here1")
+        console.log("result", result)
         buffer = result.Body
       }
       catch (e){
@@ -144,6 +146,8 @@ module.exports = {
           result = await s3.send(command);
         }
         buffer = result.Body
+        console.log("here2")
+        console.log("result", result)
       }
       catch (e) {
         exists = false
@@ -284,6 +288,8 @@ module.exports = {
           })
           await s3.send(command);
         }
+        console.log("here3")
+        console.log("result", result)
       }
       else {
         if(!fs.existsSync(`${cacheBucket}/${imageCacheFolderName}`)) fs.mkdirSync(`${cacheBucket}/${imageCacheFolderName}`)
