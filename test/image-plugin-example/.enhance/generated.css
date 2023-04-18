@@ -1,8 +1,12 @@
 
-/* ----- THEME ----- */
+/**
+ * For more information please see the documentation at : https://github.com/enhance-dev/enhance-styles#readme
+ */
 
-/* ----- THEME COLORS ----- */
+/* ----- THEME ----- */
 :root {
+  
+/* ----- THEME COLORS ----- */
   --light: #f8f9fa;
   --dark: #343a40;
 
@@ -85,13 +89,12 @@
   --crimson: #eb0052;
   --muted: #6c757d;
   --white: #fff;
-}
 
-/* CUSTOM PROPERTIES */
-:root {
-  --gradient:linear-gradient(var(--primary), var(--secondary));/* gradient */
-}
   
+/* CUSTOM PROPERTIES */
+  --gradient:linear-gradient(var(--primary), var(--secondary));/* gradient */
+  
+}
 
 /* RESET */
 *,
@@ -195,6 +198,11 @@ body {
   font-weight: normal;
   line-height: 1;
   text-rendering: optimizeSpeed;
+}
+
+
+/* -- SMOOTHING -- */
+.font-smoothing {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -447,6 +455,7 @@ body {
 
 /* WIDTH */
 .w-0{width:0}
+.w-auto{width:auto}
 .w-full{width:100%}
 .w-screen{width:100vw}
 .min-w-0{min-width:0}
@@ -457,6 +466,7 @@ body {
 
 /* HEIGHT */
 .h-0{height:0;}
+.h-auto{height:auto}
 .h-full{height:100%;}
 .h-screen{height:100vh;}
 .min-h-0{min-height:0;}
@@ -597,9 +607,11 @@ body {
 .mb-none{margin-bottom:0}
 .mx-none,
 .ml-none{margin-left:0}
+.mx-auto,
 .m-auto{margin-right:auto;margin-left:auto;}
 .mr-auto{margin-right:auto}
 .ml-auto{margin-left:auto}
+.my-auto{margin-top:auto;margin-bottom:auto;}
 .m6{margin:5.61rem}
 .mt6{margin-top:5.61rem}
 .mr6{margin-right:5.61rem}
@@ -953,6 +965,7 @@ body {
 
 /* WIDTH */
 .w-0-lg{width:0}
+.w-auto-lg{width:auto}
 .w-full-lg{width:100%}
 .w-screen-lg{width:100vw}
 .min-w-0-lg{min-width:0}
@@ -963,6 +976,7 @@ body {
 
 /* HEIGHT */
 .h-0-lg{height:0;}
+.h-auto-lg{height:auto}
 .h-full-lg{height:100%;}
 .h-screen-lg{height:100vh;}
 .min-h-0-lg{min-height:0;}
@@ -1103,9 +1117,11 @@ body {
 .mb-none-lg{margin-bottom:0}
 .mx-none-lg,
 .ml-none-lg{margin-left:0}
+.mx-auto-lg,
 .m-auto-lg{margin-right:auto;margin-left:auto;}
 .mr-auto-lg{margin-right:auto}
 .ml-auto-lg{margin-left:auto}
+.my-auto-lg{margin-top:auto;margin-bottom:auto;}
 .m6-lg{margin:5.61rem}
 .mt6-lg{margin-top:5.61rem}
 .mr6-lg{margin-right:5.61rem}
