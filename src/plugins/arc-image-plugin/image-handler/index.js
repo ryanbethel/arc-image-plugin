@@ -124,7 +124,6 @@ module.exports = {
     }
 
     if (exists) {
-      // return imageResponse({ mime, buffer })
       return imageResponse({ mime, buffer: Buffer.from(buffer)})
     }
 
