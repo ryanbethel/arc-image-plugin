@@ -5,4 +5,10 @@ sam.yaml
 preferences.arc
 .DS_Store
 .vscode
+tmp
+.enhance
+test/**/package-lock.json
+test/**/node_modules
+test/**/.enhance
+.env
 

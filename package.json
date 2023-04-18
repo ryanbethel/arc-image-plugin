@@ -1,8 +1,8 @@
 {
-  "name": "@ryanbethel/arc-image-plugin",
+  "name": "@enhance/arc-image-plugin",
   "version": "0.0.4",
-  "description": "Architect plugin for transforming images",
-  "main": "src/index.js",
+  "description": "Enhance/Architect plugin for transforming images",
+  "main": "src/plugins/arc-image-plugin/index.js",
   "scripts": {
     "lint": "eslint . --fix",
     "hydrate:tests": "cd test/image-plugin-example && npm i",
@@ -10,13 +10,14 @@
   },
   "author": "Ryan Bethel",
   "dependencies": {
-    "@architect/architect": "^10.0.0-RC.8",
-    "@architect/functions": "^5.0.0-RC.2",
-    "jimp": "^0.16.1",
-    "json-stable-stringify": "^1.0.1"
+    "@architect/functions": "^5.3.1",
+    "json-stable-stringify": "^1.0.1",
+    "wasm-vips": "^0.0.4"
   },
   "devDependencies": {
+    "@architect/architect": "^10.8.0",
     "@architect/eslint-config": "^2.0.0",
+    "@enhance/arc-plugin-enhance": "^5.0.1",
     "eslint": "^7.11.0",
     "gm": "^1.23.1",
     "image-size": "^1.0.0",
@@ -26,15 +27,15 @@
     "tiny-json-http": "^7.3.1"
   },
   "files": [
-    "src/index.js",
-    "src/image-handler/index.js"
+    "src/plugins/arc-image-plugin/index.js",
+    "src/plugins/arc-image-plugin/image-handler/index.js"
   ],
   "eslintConfig": {
     "extends": "@architect/eslint-config"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ryanbethel/arc-image-plugin.git"
+    "url": "git+https://github.com/enhance-dev/arc-image-plugin.git"
   },
   "keywords": [
     "image",
@@ -43,7 +44,7 @@
   ],
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/ryanbethel/arc-image-plugin/issues"
+    "url": "https://github.com/enhance-dev/arc-image-plugin/issues"
   },
-  "homepage": "https://github.com/ryanbethel/arc-image-plugin#readme"
+  "homepage": "https://github.com/enhance-dev/arc-image-plugin#readme"
 }

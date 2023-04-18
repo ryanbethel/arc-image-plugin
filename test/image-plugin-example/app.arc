@@ -1,5 +1,5 @@
 @app
-plug-img-expl
+plug-img-example
 
 @static
 fingerprint true
@@ -8,9 +8,12 @@ fingerprint true
 get /
 
 @plugins
-ryanbethel/arc-image-plugin
+enhance/arc-image-plugin
+enhance/arc-plugin-enhance
 
 @aws
 profile begin-examples
 region us-east-1
+
   
+
