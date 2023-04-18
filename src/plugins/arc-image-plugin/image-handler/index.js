@@ -13,10 +13,9 @@ let discovered, cacheBucket
 const imageCacheFolderName = ".image-transform-cache"
 
 let isNode18 = Number(process.version.replace('v', '').split('.')[0]) >= 18
-console.log("isNode18", isNode18)
-let s3
+let s3, S3Client, GetObjectCommand, PutObjectCommand
 if (isNode18) {
-  const { S3Client, GetObjectCommand, PutObjectCommand } = require('@aws-sdk/client-s3');
+  ({ S3Client, GetObjectCommand, PutObjectCommand } = require('@aws-sdk/client-s3'));
   s3 = new S3Client({ region:Region })
 } else {
   const AWS = require('aws-sdk')
@@ -100,16 +99,14 @@ module.exports = {
       let Bucket = cacheBucket
       let Key = `${imageCacheFolderName}/${queryFingerprint}.${extOut}`
       try {
-        let result
         if (isNode18) {
-          result = await s3.getObject({ Bucket, Key }).promise()
-        } else {
           const command = new GetObjectCommand({ Bucket, Key});
-          result = await s3.send(command);
+          const response = await s3.send(command);
+          buffer = await response.Body.transformToByteArray();
+        } else {
+          const result = await s3.getObject({ Bucket, Key }).promise()
+          buffer = result.Body
         }
-        console.log("here1")
-        console.log("result", result)
-        buffer = result.Body
       }
       catch (e){
         exists = false
@@ -127,7 +124,8 @@ module.exports = {
     }
 
     if (exists) {
-      return imageResponse({ mime, buffer })
+      // return imageResponse({ mime, buffer })
+      return imageResponse({ mime, buffer: Buffer.from(buffer)})
     }
 
     // Transform
@@ -138,16 +136,14 @@ module.exports = {
       let Bucket = staticDir
       let Key = imagePath
       try {
-        let result
         if (isNode18) {
-          result = await s3.getObject({ Bucket, Key }).promise()
-        } else {
           const command = new GetObjectCommand({ Bucket, Key});
-          result = await s3.send(command);
+          const response = await s3.send(command);
+          buffer = await response.Body.transformToByteArray();
+        } else {
+          const result = await s3.getObject({ Bucket, Key }).promise()
+          buffer = result.Body
         }
-        buffer = result.Body
-        console.log("here2")
-        console.log("result", result)
       }
       catch (e) {
         exists = false
@@ -273,13 +269,6 @@ module.exports = {
 
       if (isLive) {
         if (isNode18) {
-          await s3.putObject({ 
-            ContentType: mime,
-            Bucket: cacheBucket,
-            Key,
-            Body: output,
-          }).promise()
-        } else {
           const command = new PutObjectCommand({ 
             ContentType: mime,
             Bucket: cacheBucket,
@@ -287,9 +276,14 @@ module.exports = {
             Body: output,
           })
           await s3.send(command);
+        } else {
+          await s3.putObject({ 
+            ContentType: mime,
+            Bucket: cacheBucket,
+            Key,
+            Body: output,
+          }).promise()
         }
-        console.log("here3")
-        console.log("result", result)
       }
       else {
         if(!fs.existsSync(`${cacheBucket}/${imageCacheFolderName}`)) fs.mkdirSync(`${cacheBucket}/${imageCacheFolderName}`)

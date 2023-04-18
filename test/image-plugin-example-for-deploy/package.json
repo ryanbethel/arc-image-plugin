@@ -1,8 +1,0 @@
-{
-  "dependencies": {
-    "@enhance/arc-image-plugin": "github:enhance-dev/arc-image-plugin#node18"
-  },
-  "devDependencies": {
-    "@enhance/arc-plugin-enhance": "^5.0.5"
-  }
-}
